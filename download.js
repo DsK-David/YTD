@@ -10,10 +10,15 @@ if (!videoUrl) {
   process.exit(1);
 }
 
-ytdl.getInfo(videoUrl)
+ytdl.getInfo(videoUrl, { filter: 'audioandvideo' })
   .then(info => {
     const videoTitle = info.videoDetails.title;
-    const videoFormat = ytdl.chooseFormat(info.formats, { quality: 'highest' });
+    const videoFormat = info.formats.find(format => format.hasVideo && format.hasAudio);
+
+    if (!videoFormat) {
+      console.error('Não foi possível encontrar um formato de vídeo com áudio');
+      process.exit(1);
+    }
 
     const videosDir = path.join(os.homedir(), 'Videos');
     const youtubeDir = path.join(videosDir, 'YTDVideos');
